@@ -1,0 +1,148 @@
+code generation:
+
+1. add codegenerator.class providing as many methods as low level instructions (in a filewriter object). the main method must receive both the input and the output files.
+2. code functions:
+	execute: generates the code to execute statements and definitions
+	value: generates the code to push value of an epression
+	address: generates the code to push the mem address of an lvalue expression
+use a new abstract visitor (theory).
+3. one method for each low level instruction.
+
+a[i] => we need the address of a and the value of i.
+
+
+TODO:
+	specify all the code templates as a comment in the visitor in each visitor
+
+
+
+CODE TEMPLATES:
+
+execute[[Program: program -> definition*]]() = 
+	for (Definition definition : definition*) --> 1st the variable definitions
+		if (definition instanceof VARDEF)
+			execute[[definition]]()
+	<call main>
+	<halt>
+	for (Definition definition: definition*) --> 2nd the function definitions
+		if (definition instanceof FUNDEF)
+			execute[[definition]]()
+
+execute[[Print: statement -> expression]]() = 
+	value[[expression]]()
+	<out> expression.tipo.suffix()
+
+execute[[Input: statement -> expression]]() = 
+	address[[expresion]]()
+	<in> expression.type.suffix()
+	<store> expression.type.suffix()
+
+address[[Variable: expression -> ID]]() = 
+	if (expression.definition.scope == 0)
+		<pusha> expression.definition.offset
+	else
+		<push bp>
+		<pushi> expression.definition.offset
+		<addi>
+
+value[[Variable :expression -> ID]]() = 	
+	address[[expression]]()
+	<load> expression.type.suffix()
+
+
+specify code generation templates except: if, while, return, invocation, fieldaccess and indexing
+implement all code generation visitors
+new suffix() char method in type
+modify main to include output.txt
+test your implementation: input.txt and test result with mapl
+
+
+# line 5 --> write this at the beginning of each statement and at the beginning of each function definition. for each statement of the funcdefinition write the line
+
+# the comments ' * -> write them in the execute variables
+
+
+
+
+Control structures
+
+<label><:>
+JMP label
+jz label
+jnz label
+
+
+execute[[WhileSt: statement -> expression statement*]] =
+	int condition = cg.getlabel()
+	int end = cg.getlabel()
+	<label> condition <:>
+	value[[expresion]]
+	<jz label> end
+	statement.foreach(st -> execute[[st]])
+	<jmp label> condition
+	<label> end <:>
+
+execute[[IfSt: statement -> expression statementIf* statementElse*]] = 
+	int else = cg.getLabel()
+	int end = cg.getLabel()
+	value[[expression]]
+	<jz label> else
+	statementif*.foreach(st -> execute[[st]])
+	<jmp label> end
+	<label> else <:>
+	statementElse*.foreach(st -> execute[[st]])
+	<label> end <:>
+
+address[[Indexing: exp1 -> exp2 exp3]] = 
+	address[[exp2]]
+	value[[exp3]]
+	<pushi> exp1.type.numberofbytes()
+	<muli>
+	<addi>
+
+value[[Indexing: exp1 -> exp2 exp3]]=
+	address[[expression1]]
+	<load> exp1.type.suffix()
+
+address[[FieldAccess: exp1 -> exp2 ID]] =
+	address[[exp2]]
+	<push> exp2.type.getfield(ID).offset
+	<addi>
+
+value[[FieldAcess: exp1 -> exp2 ID]] =
+	address[[exp1]]
+	<load> exp1.type.suffix()
+
+Lexical
+Syntactical
+Semantic
+	Typechekcking
+Offset
+CG
+	
+	
+value[[invocation: exp1 -> exp2 expr*]] = 
+	for (expression arg: expression*)
+		value[[arg]]
+	<call> expression2.name
+
+execute[[invocation: statement -> exp2 expr*]] = 
+	value[[(expression) statement]]
+	if (!((expression)statement).type instanceof voidtype))
+		<pop> ((expression)statement).type.suffix()
+
+execute[[return: statement -> expression]](funcDefinition)=
+	value[[€xpression]]()
+	<ret> funcDefinition.type.returntype.numberofbytes <,>
+		funcDefinition.byteslocalssum <,>
+		funcdefinition.type.bytesparamssum
+
+
+
+
+	
+
+
+
+
+

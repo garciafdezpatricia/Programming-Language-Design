@@ -1,0 +1,18 @@
+def f (a:int, b:double) : int {
+    return b;
+}
+
+def main () : {
+    integer:int;
+    character:char;
+    pair:struct {
+            a:int;
+            b:double;
+        };
+
+    integer = 3.8;
+    character = 3;
+
+    print pair+integer, f==3;
+    print f(8.4, 'c');
+}

@@ -1,0 +1,57 @@
+AG: type-checking
+
+// expressions
+(1) IntLiteral: expression -> INT_CONSTANT
+(2) CharLiteral: expression -> CHAR_CONSTANT
+(3) DoubleLiteral: expression -> REAL_CONSTANT
+(4) Variable: expression -> ID
+(5) FuncInvocation: expression1 -> Variable expression2*
+(6) Arithmetic: expression1 -> expression2 expression3
+(7) ArithComparison: expression1 -> expression2 expression3
+(8) LogComparison: expression1 -> expression2 expression3
+(9) Minus: expression1 -> expression2
+(10) Negation: expression1 -> expression2
+(11) FieldAccess: expression1 -> expression2 ID
+(12) ArrayIndex: expression1 -> expression2 expression3
+
+// definitions
+(13) FuncDefinition: funcdefinition -> ID vardefinition* statement* type
+(14) VarDefinition: vardefinition -> ID type
+
+// statements
+(15) Assignment: statement -> expression1 expression2
+(16) IfStatement: statement -> expression statement1* statement2*
+(17) Input: statement -> expression*
+(18) Print: statement -> expression*
+(19) Return: statement -> expression
+(20) WhileStatement: statement -> expression statement*
+
+// Attributes
+expression.type, statement.return
+
+// Semantic rules
+(1) expression.type = new Int(expression.line, expression.column) // int
+(2) expression.type = new Char(expression.line, expression.column) // char
+(3) expression.type = new Real(expression.line, expression.column) // real
+(4) expression.type = expresion.definition.type // variable
+(5) expression1.type = variable.definition.type.returnType // function invocation
+(6) expression1.type = expression2.type.arithmetic(expression3.type) // arithmetic
+(7) expression1.type = expression2.type.arithComparison(expression3.type) // arith comparison
+(8) expression1.type = expression2.type.logicComparison(expression3.type) // logic comparison
+(9) expression1.type = expression2.type.unaryMinus() // minus
+(10) expression1.type = expression2.type.unaryNegation() // negation
+(11) expression1.type = expression2.type.access(ID) //fieldaccess
+(12) expression1.type = expression2.type.squareBrackets(expression3) // array indexer
+
+(13) funcdefinition.type = new FunctionType(ID.line, ID.column, vardefinition*, type)
+(14) vardefinition.type = type
+
+// statements
+(15) expression2.type = expression2.type.assignment(expression1.type) // assignment
+(16) expression.type = expression.type.isLogical()  // if
+(17) expression*.type = expression*.type.isBuiltin() // input
+(18) expression*.type = expression*.type.isBuiltIn() // print
+(19) Return: statement -> expression // not finished
+(20) expression.type = expression.type.isLogical() // while
+
+
